@@ -167,14 +167,14 @@ const Clientes = () => {
 
   const handleSubmit = async () => {
     if (!validateForm()) {
-      showAlert("Por favor, corrija los errores en el formulario.", 'error');
+      showAlert("Por favor, corrija los errores en el formulario.", error);
       return;
     }
 
     const { Distintivo } = form;
     const clienteExistente = data.find(registro => registro.Distintivo == Distintivo);
     if (clienteExistente) {
-      showAlert("El cliente ya existe. Por favor, ingrese un distintivo diferente.", 'error');
+      showAlert("El cliente ya existe. Por favor, ingrese un distintivo diferente.", error);
       return;
     }
 
@@ -214,7 +214,7 @@ const Clientes = () => {
 
   const editar = async () => {
     if (!validateForm()) {
-      showAlert("Por favor, corrija los errores en el formulario.", 'error');
+      showAlert("Por favor, corrija los errores en el formulario.", error);
       return;
     }
 
@@ -223,7 +223,7 @@ const Clientes = () => {
       (registro) => registro.Distintivo === Distintivo && registro._id !== _id
     );
     if (clienteExistente) {
-      showAlert("Ya existe un cliente con el mismo distintivo. Por favor, ingresa un distintivo diferente.", 'error');
+      showAlert("Ya existe un cliente con el mismo distintivo. Por favor, ingresa un distintivo diferente.", error);
       return;
     }
 
@@ -238,21 +238,21 @@ const Clientes = () => {
     });
 
     if (result.isConfirmed) {
-      await axios.put(http://localhost:3000/customers/${_id}, form);
+      await axios.put(`http://localhost:3000/customers/${_id}`, form);
       const updatedData = data.map((registro) =>
         registro._id === _id ? { ...form } : registro
       );
       setData(updatedData);
       setIsEditing(false);
       setModalOpen(false);
-      showAlert("Cliente editado exitosamente", 'success');
+      showAlert("Cliente editado exitosamente", success);
     }
   };
 
   const handleDelete = async (dato) => {
     const result = await Swal.fire({
       title: '¿Está seguro?',
-      text: ¿Desea eliminar el cliente "${dato.NombreCompleto}"?,
+      text: (`¿Desea eliminar el cliente ${dato.NombreCompleto}?`),
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -263,9 +263,9 @@ const Clientes = () => {
 
     if (result.isConfirmed) {
       const updatedData = data.filter(registro => registro._id !== dato._id);
-      await axios.delete(http://localhost:3000/customers/${dato._id});
+      await axios.delete(`http://localhost:3000/customers/${dato._id}`);
       setData(updatedData);
-      showAlert("Cliente eliminado exitosamente", 'success');
+      showAlert("Cliente eliminado exitosamente", success);
     }
   };
 
@@ -275,7 +275,7 @@ const Clientes = () => {
 
     const result = await Swal.fire({
       title: "¿Desea cambiar el estado del cliente?",
-      text: El cliente "${cliente.NombreCompleto}" pasará de ${cliente.Estado ? 'Activo' : 'Inactivo'} a ${nuevoEstado ? 'Activo' : 'Inactivo'},
+      text: (`El cliente "${cliente.NombreCompleto}" pasará de ${cliente.Estado ? 'Activo' : 'Inactivo'} a ${nuevoEstado ? 'Activo' : 'Inactivo'}`),
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
@@ -286,7 +286,7 @@ const Clientes = () => {
 
     if (result.isConfirmed) {
       try {
-        await axios.put(http://localhost:3000/customers/${id}, nuevoEstado);
+        await axios.put(`http://localhost:3000/customers/${id}`, nuevoEstado)
         const updatedData = data.map((registro) => {
           if (registro._id === id) {
             return { ...registro, Estado: nuevoEstado };
@@ -294,7 +294,7 @@ const Clientes = () => {
           return registro;
         });
         setData(updatedData);
-        showAlert(Estado del cliente actualizado a ${nuevoEstado ? 'Activo' : 'Inactivo'}, 'success');
+        showAlert(`Estado del cliente actualizado a ${nuevoEstado ? 'Activo' : 'Inactivo'}`, success);
       } catch (error) {
         console.error('Error al cambiar el estado del cliente:', error);
         showAlert('Error al cambiar el estado del cliente', 'error');
@@ -402,7 +402,7 @@ const Clientes = () => {
                 {pageNumbers.map((number) => (
                   <li
                     key={number}
-                    className={page-item ${number === currentPage ? 'active' : ''}}
+                    className={`page-item  ${number === currentPage ? 'active' : ''}`}
                     onClick={() => handlePageChange(number)}
                   >
                     <span className="page-link">{number}</span>
@@ -614,8 +614,8 @@ const Clientes = () => {
         </ModalFooter>
       </Modal>
     </Container>
-  );
-};
+  )
+}
 
 Clientes.propTypes = {
   data: PropTypes.array,
