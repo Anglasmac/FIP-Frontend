@@ -26,6 +26,7 @@ const Clientes = () => {
     Celular: '',
     Correo: '',
     Direccion: '',
+    Observaciones:'',
     Estado: true
   });
   const [filteredCustomers, setFiltersCustomers] = useState(customers);
@@ -70,6 +71,7 @@ const Clientes = () => {
     Celular: '',
     Correo: '',
     Direccion: '',
+    Observaciones:'',
     Estado: true
   });
   const [errors, setErrors] = useState({
@@ -120,6 +122,8 @@ const Clientes = () => {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? '' : 'Correo electrónico inválido.';
       case 'Direccion':
         return value.trim() !== '' ? '' : 'Dirección es requerida.';
+        case 'Observaciones':
+        return /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value) ? '' : 'Observaciones  solo debe contener letras y espacios.';
       default:
         return '';
     }
@@ -167,14 +171,14 @@ const Clientes = () => {
 
   const handleSubmit = async () => {
     if (!validateForm()) {
-      showAlert("Por favor, corrija los errores en el formulario.", error);
+      showAlert("Por favor, corrija los errores en el formulario.", 'error');
       return;
     }
 
     const { Distintivo } = form;
     const clienteExistente = data.find(registro => registro.Distintivo == Distintivo);
     if (clienteExistente) {
-      showAlert("El cliente ya existe. Por favor, ingrese un distintivo diferente.", error);
+      showAlert("El cliente ya existe. Por favor, ingrese un distintivo diferente.", 'error');
       return;
     }
 
@@ -205,6 +209,7 @@ const Clientes = () => {
         Celular: '',
         Correo: '',
         Direccion: '',
+        Observaciones:'',
         Estado: true
       });
       setShowForm(false);
@@ -214,7 +219,7 @@ const Clientes = () => {
 
   const editar = async () => {
     if (!validateForm()) {
-      showAlert("Por favor, corrija los errores en el formulario.", error);
+      showAlert("Por favor, corrija los errores en el formulario.", 'error');
       return;
     }
 
@@ -223,7 +228,7 @@ const Clientes = () => {
       (registro) => registro.Distintivo === Distintivo && registro._id !== _id
     );
     if (clienteExistente) {
-      showAlert("Ya existe un cliente con el mismo distintivo. Por favor, ingresa un distintivo diferente.", error);
+      showAlert("Ya existe un cliente con el mismo distintivo. Por favor, ingresa un distintivo diferente.", 'error');
       return;
     }
 
@@ -245,14 +250,14 @@ const Clientes = () => {
       setData(updatedData);
       setIsEditing(false);
       setModalOpen(false);
-      showAlert("Cliente editado exitosamente", success);
+      showAlert("Cliente editado exitosamente", 'success');
     }
   };
 
   const handleDelete = async (dato) => {
     const result = await Swal.fire({
       title: '¿Está seguro?',
-      text: (`¿Desea eliminar el cliente ${dato.NombreCompleto}?`),
+      text: (`¿Desea eliminar el cliente "${dato.NombreCompleto}"?`),
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -264,8 +269,8 @@ const Clientes = () => {
     if (result.isConfirmed) {
       const updatedData = data.filter(registro => registro._id !== dato._id);
       await axios.delete(`http://localhost:3000/customers/${dato._id}`);
-      setData(updatedData);
-      showAlert("Cliente eliminado exitosamente", success);
+      setData(updatedData)
+      showAlert("Cliente eliminado exitosamente", 'success');
     }
   };
 
@@ -286,7 +291,7 @@ const Clientes = () => {
 
     if (result.isConfirmed) {
       try {
-        await axios.put(`http://localhost:3000/customers/${id}`, nuevoEstado)
+        await axios.put(`http://localhost:3000/customers/${id}`, nuevoEstado);
         const updatedData = data.map((registro) => {
           if (registro._id === id) {
             return { ...registro, Estado: nuevoEstado };
@@ -294,10 +299,10 @@ const Clientes = () => {
           return registro;
         });
         setData(updatedData);
-        showAlert(`Estado del cliente actualizado a ${nuevoEstado ? 'Activo' : 'Inactivo'}`, success);
+        showAlert(`Estado del cliente actualizado`, 'success');
       } catch (error) {
         console.error('Error al cambiar el estado del cliente:', error);
-        showAlert('Error al cambiar el estado del cliente', 'error');
+        showAlert('Error al cambiar el estado del cliente', error);
       }
     }
   };
@@ -308,7 +313,8 @@ const Clientes = () => {
     item.CategoriaCliente.toLowerCase().includes(searchText) ||
     item.Celular.toString().includes(searchText) ||
     item.Correo.toLowerCase().includes(searchText) ||
-    item.Direccion.toLowerCase().includes(searchText)
+    item.Direccion.toLowerCase().includes(searchText) ||
+    item.Observaciones.toLowerCase().includes(searchText) 
   );
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -351,6 +357,7 @@ const Clientes = () => {
                 <th>Celular</th>
                 <th>Correo</th>
                 <th>Dirección</th>
+                <th>Observaciones</th>
                 <th>Estado</th>
                 <th>Acciones</th>
               </tr>
@@ -366,6 +373,7 @@ const Clientes = () => {
                     <td>{dato.Celular}</td>
                     <td>{dato.Correo}</td>
                     <td>{dato.Direccion}</td>
+                    <td>{dato.Observaciones}</td>
                     <td>
                       <Button
                         style={{
@@ -402,7 +410,7 @@ const Clientes = () => {
                 {pageNumbers.map((number) => (
                   <li
                     key={number}
-                    className={`page-item  ${number === currentPage ? 'active' : ''}`}
+                    className={`page-item ${number === currentPage ? 'active' : ''}`}
                     onClick={() => handlePageChange(number)}
                   >
                     <span className="page-link">{number}</span>
@@ -454,13 +462,19 @@ const Clientes = () => {
                   <br />
                   <label><b>Categoria cliente</b></label>
                   <Input
-                    type="text"
+                    type="select"
                     name="CategoriaCliente"
                     value={form.CategoriaCliente}
                     onChange={handleChange}
                     placeholder="Categoría Cliente"
                     invalid={!!errors.CategoriaCliente}
-                  />
+                  >
+                  <option value="VIP">VIP</option>
+                  <option value="Frecuente">Frecuente</option>
+                  <option value="Regular">Regular</option>
+                  <option value="Nuevo">Nuevo</option>
+                  
+                </Input>
                   {errors.CategoriaCliente && <span className="text-danger">{errors.CategoriaCliente}</span>}
                 </Col>
                 <Col md={6}>
@@ -506,6 +520,19 @@ const Clientes = () => {
                     invalid={!!errors.Direccion}
                   />
                   {errors.Direccion && <span className="text-danger">{errors.Direccion}</span>}
+                </Col>
+                <Col md={6}>
+                  <label><b>Observaciones</b></label>
+                  <br />
+                  <Input
+                    type="text"
+                    name="Observaciones"
+                    value={form.Observaciones}
+                    onChange={handleChange}
+                    placeholder="Observaciones"
+                    invalid={!!errors.Observaciones}
+                  />
+                  {errors.Observaciones && <span className="text-danger">{errors.Observaciones}</span>}
                 </Col>
               </Row>
               <br />
@@ -559,13 +586,18 @@ const Clientes = () => {
             <br />
             <Input
               style={{ border: '2px solid #000000' }}
-              type="text"
+              type="select"
               name="CategoriaCliente"
               value={form.CategoriaCliente}
               onChange={handleChange}
               placeholder="Categoría Cliente"
               invalid={!!errors.CategoriaCliente}
-            />
+            >
+                  <option value="VIP">VIP</option>
+                  <option value="Frecuente">Frecuente</option>
+                  <option value="Regular">Regular</option>
+                  <option value="Nuevo">Nuevo</option>
+                </Input>
             {errors.CategoriaCliente && <span className="text-danger">{errors.CategoriaCliente}</span>}
             <br />
             <label ><b>Celular:</b></label>
@@ -606,6 +638,20 @@ const Clientes = () => {
               invalid={!!errors.Direccion}
             />
             {errors.Direccion && <span className="text-danger">{errors.Direccion}</span>}
+            <br />
+            <label ><b>Observaciones:</b></label>
+            <br />
+            <Input
+              style={{ border: '2px solid #000000' }}
+              type="text"
+              name="Observaciones"
+              value={form.Observaciones}
+              onChange={handleChange}
+              placeholder="Observaciones"
+              invalid={!!errors.Observaciones}
+            />
+            {errors.Observaciones && <span className="text-danger">{errors.Observaciones}</span>}
+            <br />
           </FormGroup>
         </ModalBody>
         <ModalFooter>
@@ -614,8 +660,8 @@ const Clientes = () => {
         </ModalFooter>
       </Modal>
     </Container>
-  )
-}
+  );
+};
 
 Clientes.propTypes = {
   data: PropTypes.array,

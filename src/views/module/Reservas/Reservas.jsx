@@ -1,4 +1,4 @@
-import  { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Container, Button, FormGroup, Input, Modal, ModalHeader, ModalBody, ModalFooter, Row, Col, Label, InputGroup, InputGroupText } from 'reactstrap';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -754,7 +754,7 @@ export default function Calendario() {
                       />
                     </Col>
                     <Col md={2}>
-                      <Button style={{background:'#6d0f0f'}} onClick={() => removeAbono(index)}>
+                      <Button color="danger" onClick={() => removeAbono(index)}>
                         <FaTrash />
                       </Button>
                     </Col>
@@ -764,7 +764,7 @@ export default function Calendario() {
                 {form.abonos.map((_, index) => (
                   errors[`abono${index}`] && <span key={index} className="text-danger d-block">{errors[`abono${index}`]}</span>
                 ))}
-                <Button style={{background:'#7ea9d1'}} onClick={addAbono} >+</Button>
+                <Button color="primary" onClick={addAbono}>Agregar Abono</Button>
               </Col>
             </Row>
             <Row className="mt-3">
